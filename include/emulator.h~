@@ -1,0 +1,6 @@
+#ifndef EMULATOR_H
+#define EMULATOR_H
+
+int a = 3;
+
+#endif

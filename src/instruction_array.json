@@ -1,0 +1,16 @@
+{
+    instructions : [
+	{
+	    "opcode": "0x01",
+	    "name": "ADD",
+	    "operands": ["reg", "reg"],
+	    "execute": "add_function"
+	},
+	{
+	    "opcode": "0x02",
+	    "name": "SUB",
+	    "operands": ["reg", "reg"],
+	    "execute": "sub_function"
+	}
+    ]
+}
