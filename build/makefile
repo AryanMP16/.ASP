@@ -1,6 +1,6 @@
 IDIR = ../include
 CC = gcc
-CFLAGS = -I$(IDIR) -I../cJSON -g -lm
+CFLAGS = -I$(IDIR) -g -lm -lcjson
 
 ODIR = obj
 SDIR = ../src
@@ -13,10 +13,6 @@ _OBJ = main.o emulator.o cJSON.o
 OBJ = $(patsubst %, $(ODIR)/%, $(_OBJ))
 
 $(ODIR)/%.o: $(SDIR)/%.c $(DEPS)
-	@mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-
-$(ODIR)/cJSON.o: $(CJSON_DIR)/cJSON.c
 	@mkdir -p $(ODIR)
 	$(CC) -c -o $@ $< $(CFLAGS)
 

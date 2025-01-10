@@ -1,0 +1,2 @@
+0x01,ADD,add_function,2,reg,reg
+0x02,SUB,sub_function,2,reg,reg
