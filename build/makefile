@@ -1,15 +1,14 @@
 IDIR = ../include
 CC = gcc
-CFLAGS = -I$(IDIR) -g -lm -lcjson
+CFLAGS = -I$(IDIR) -g -lm
 
 ODIR = obj
 SDIR = ../src
-CJSON_DIR = ../cJSON
 
-_DEPS = emulator.h
+_DEPS = assembler.h
 DEPS = $(patsubst %, $(IDIR)/%, $(_DEPS))
 
-_OBJ = main.o emulator.o cJSON.o
+_OBJ = main.o assembler.o
 OBJ = $(patsubst %, $(ODIR)/%, $(_OBJ))
 
 $(ODIR)/%.o: $(SDIR)/%.c $(DEPS)
