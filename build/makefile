@@ -5,7 +5,7 @@ CFLAGS = -I$(IDIR) -g -lm
 ODIR = obj
 SDIR = ../src
 
-_DEPS = assembler.h
+_DEPS = assembler.h emulator.h
 DEPS = $(patsubst %, $(IDIR)/%, $(_DEPS))
 
 _OBJ = main.o assembler.o

@@ -1,4 +1,5 @@
 #include "assembler.h"
+#include "emulator.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,7 +29,7 @@ void create_instructions() {
   instructions[3] = TER;
 }
 
-void lexer(char* filename) {
+expression* lexer(char* filename) {
   //check file validity
   int i = 0;
   while (filename[i] != '\0')
@@ -55,40 +56,23 @@ void lexer(char* filename) {
   buffer[terminator_index] = '\0';
 
   //check for start
-  i = 0;
-  for (; i < 5; i++) {
-    char current_char = buffer[i];
-    switch (i) {
-    case 0:
-      if (current_char != '>')
-	missing_start();
-      break;
-    case 1:
-      if (current_char != 's')
-	missing_start();
-      break;
-    case 2:
-      if (current_char != 't')
-	missing_start();
-      break;
-    case 3:
-      if (current_char != 'a')
-	missing_start();
-      break;
-    case 4:
-      if (current_char != 'r')
-	missing_start();
-      break;
-    case 5:
-      if (current_char != 't')
-	missing_start();
-      break;
-    }
+  if (strncmp(buffer, ">start", 6) != 0)
+    missing_start();
+
+  //count number of lines (number of expressions)
+  int num_exp_in_file = 0;
+  for (int j = 0; j < terminator_index; j++) {
+    if (buffer[j] == '\n')
+      num_exp_in_file++;
   }
   
   //lexer algorithm
+  expression* expression_array = (expression*)malloc(sizeof(expression) * num_exp_in_file);
+  //TODO
   
-  
+
+  //return expression array
+  return expression_array;
 }
 
 void missing_start() {
