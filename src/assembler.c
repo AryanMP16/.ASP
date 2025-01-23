@@ -76,17 +76,27 @@ token* lexer() {
   token* to_return_temporary = (token*)malloc(sizeof(token*));
 
   int r_traverser = 7; int l_traverser = 7; int was_prev_delim = 0;
+  printf("Content read:\n");
   while (l_traverser < asp_file_contents_length && r_traverser < asp_file_contents_length && l_traverser <= r_traverser) {
     if (!is_delimeter(asp_file_contents[r_traverser])) {
       r_traverser++;
       was_prev_delim = 0;
     }
-    else if (is_delimeter(asp_file_contents[r_traverser] && l_traverser < r_traverser)) {
-      if (!was_prev_delim /*ignoring double delimeter for now*/){
+    else {
+      if (!was_prev_delim){
 	char* str = (char*) malloc(r_traverser - l_traverser + 1);
 	strncpy(str, asp_file_contents + l_traverser, r_traverser - l_traverser);
 	str[r_traverser - l_traverser] = '\0';
-	printf("%s\n", str);
+	printf("Token: '%s'\n", str);
+
+	r_traverser++;
+	l_traverser = r_traverser;
+	was_prev_delim = 1;
+      }
+      else { //double (or more) delimeter
+	r_traverser++;
+	l_traverser = r_traverser;
+	was_prev_delim = 1;
       }
     }
   }
@@ -96,5 +106,5 @@ token* lexer() {
 }
 
 int is_delimeter(char i){
-  return (i == ' ' || i == ',');
+  return (i == ' ' || i == ',' || i == '\n');
 }
