@@ -8,7 +8,9 @@ int main(int argc, char* argv[]) {
     printf("Did not specify a file to assemble!\n");
     exit(1);
   }
-  lexer(argv[1]);
+  readfile(argv[1]);
+  printf("For debugging purposes, here is the asp file:\n%s\n...Running lexer...\n", asp_file_contents);
+  lexer();
   
   return 0;
 }

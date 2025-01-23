@@ -4,8 +4,9 @@
 #include <stdlib.h>
 #define NUM_INSTRUCTIONS 2
 
-//register names inspired by x86
-enum reg;
+enum type {
+  INSTRUCTION, IMMEDIATE, REGISTER, ENDLINE
+};
 
 typedef struct inst {
   int m_opcode;
@@ -21,8 +22,17 @@ typedef struct expression {
   //0x1000
 } expression;
 
+typedef struct token {
+  char* str;
+  int length;
+  int type;
+} token;
+
+extern char* asp_file_contents;
 extern inst* instructions;
+
 void create_instructions();
-expression* lexer(char* filename);
+void readfile(char* filename);
+token* lexer(); //must be called AFTER readfile
 
 #endif

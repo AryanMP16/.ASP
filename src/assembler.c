@@ -6,8 +6,11 @@
 
 #define MAX_BUFFER_SIZE 10000
 
+int asp_file_contents_length = -1;
 inst* instructions = NULL;
+char* asp_file_contents = NULL;
 void missing_start();
+int is_delimeter(char i);
 
 void create_instructions() {
   instructions = (inst*)malloc(sizeof(inst) * NUM_INSTRUCTIONS);
@@ -29,7 +32,7 @@ void create_instructions() {
   instructions[3] = TER;
 }
 
-expression* lexer(char* filename) {
+void readfile(char* filename) {
   //check file validity
   int i = 0;
   while (filename[i] != '\0')
@@ -54,28 +57,44 @@ expression* lexer(char* filename) {
   char buffer[MAX_BUFFER_SIZE + 1];
   int terminator_index = fread(buffer, sizeof(char), MAX_BUFFER_SIZE, f);
   buffer[terminator_index] = '\0';
+  asp_file_contents_length = terminator_index;
 
   //check for start
   if (strncmp(buffer, ">start", 6) != 0)
     missing_start();
 
-  //count number of lines (number of expressions)
-  int num_exp_in_file = 0;
-  for (int j = 0; j < terminator_index; j++) {
-    if (buffer[j] == '\n')
-      num_exp_in_file++;
-  }
-  
-  //lexer algorithm
-  expression* expression_array = (expression*)malloc(sizeof(expression) * num_exp_in_file);
-  //TODO
-  
-
-  //return expression array
-  return expression_array;
+  printf("File print successful. No read errors\n");
+  asp_file_contents = buffer;
 }
 
 void missing_start() {
   printf("Start of file not found! Ensure the first line of your assembly is '>start'!\n");
   exit(1);
+}
+
+token* lexer() {
+  token* to_return_temporary = (token*)malloc(sizeof(token*));
+
+  int r_traverser = 7; int l_traverser = 7; int was_prev_delim = 0;
+  while (l_traverser < asp_file_contents_length && r_traverser < asp_file_contents_length && l_traverser <= r_traverser) {
+    if (!is_delimeter(asp_file_contents[r_traverser])) {
+      r_traverser++;
+      was_prev_delim = 0;
+    }
+    else if (is_delimeter(asp_file_contents[r_traverser] && l_traverser < r_traverser)) {
+      if (!was_prev_delim /*ignoring double delimeter for now*/){
+	char* str = (char*) malloc(r_traverser - l_traverser + 1);
+	strncpy(str, asp_file_contents + l_traverser, r_traverser - l_traverser);
+	str[r_traverser - l_traverser] = '\0';
+	printf("%s\n", str);
+      }
+    }
+  }
+  
+  printf("Lexer ran with no errors\n");
+  return to_return_temporary;
+}
+
+int is_delimeter(char i){
+  return (i == ' ' || i == ',');
 }
