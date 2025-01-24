@@ -5,12 +5,15 @@
 #include <string.h>
 
 #define MAX_BUFFER_SIZE 10000
+#define NUM_INSTRUCTIONS 4
 
 int asp_file_contents_length = -1;
+int num_tokens = 0;
 inst* instructions = NULL;
 char* asp_file_contents = NULL;
 void missing_start();
 int is_delimeter(char i);
+int get_type(char* str);
 
 void create_instructions() {
   instructions = (inst*)malloc(sizeof(inst) * NUM_INSTRUCTIONS);
@@ -62,8 +65,6 @@ void readfile(char* filename) {
   //check for start
   if (strncmp(buffer, ">start", 6) != 0)
     missing_start();
-
-  printf("File print successful. No read errors\n");
   asp_file_contents = buffer;
 }
 
@@ -73,10 +74,10 @@ void missing_start() {
 }
 
 token* lexer() {
-  token* to_return_temporary = (token*)malloc(sizeof(token*));
-
+  int array_size = 1000; //start with 1000 tokens
+  token* to_return = (token*)malloc(sizeof(token) * array_size);
   int r_traverser = 7; int l_traverser = 7; int was_prev_delim = 0;
-  printf("Content read:\n");
+
   while (l_traverser < asp_file_contents_length && r_traverser < asp_file_contents_length && l_traverser <= r_traverser) {
     if (!is_delimeter(asp_file_contents[r_traverser])) {
       r_traverser++;
@@ -87,7 +88,18 @@ token* lexer() {
 	char* str = (char*) malloc(r_traverser - l_traverser + 1);
 	strncpy(str, asp_file_contents + l_traverser, r_traverser - l_traverser);
 	str[r_traverser - l_traverser] = '\0';
-	printf("Token: '%s'\n", str);
+
+	int type = get_type(str);
+	token this_token = {malloc(r_traverser - l_traverser + 1), type}; //have to do it this way because mutilation of string literals is undefined behaviour
+	strcpy(this_token.str, str);
+	if (num_tokens < array_size)
+	  to_return[num_tokens] = this_token;
+	else {
+	  array_size *= 2;
+	  to_return = (token*)realloc(to_return, sizeof(token) * array_size);
+	  to_return[num_tokens] = this_token;
+	}
+	num_tokens++;
 
 	r_traverser++;
 	l_traverser = r_traverser;
@@ -101,8 +113,26 @@ token* lexer() {
     }
   }
   
-  printf("Lexer ran with no errors\n");
-  return to_return_temporary;
+  return to_return;
+}
+
+int get_type(char* str) {
+  if (instructions == NULL) {
+    printf("Instructions not initialized!\n");
+    exit(1);
+  }
+  for (int i = 0; i < NUM_INSTRUCTIONS; i++) {
+    if (!strcmp(str, instructions[i].m_name))
+      return INSTRUCTION;
+  }
+  if (str[0] == '$')
+    return IMMEDIATE;
+  if (str[0] == '%')
+    return REGISTER;
+  if (str[0] == '0' && (str[1] == 'x' || str['b']))
+    return INTEGER_LITERAL;
+  printf("Illegal token: '%s'\nAllowed tokens are of type:\n\tINSTRUCTION (no prefix)\n\tIMMEDIATE (prefix '$')\n\tREGISTER (prefix '%')\n\tINTEGER_LITERAL (prefix '0x' for hexadecimal or '0b' for binary)\n", str);
+  exit(1);
 }
 
 int is_delimeter(char i){

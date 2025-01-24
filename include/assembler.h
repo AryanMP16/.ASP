@@ -2,10 +2,9 @@
 #define ASSEMBLER_H
 
 #include <stdlib.h>
-#define NUM_INSTRUCTIONS 2
 
 enum type {
-  INSTRUCTION, IMMEDIATE, REGISTER, ENDLINE
+  INSTRUCTION, IMMEDIATE, REGISTER, INTEGER_LITERAL
 };
 
 typedef struct inst {
@@ -24,12 +23,12 @@ typedef struct expression {
 
 typedef struct token {
   char* str;
-  int length;
   int type;
 } token;
 
 extern char* asp_file_contents;
 extern inst* instructions;
+extern int num_tokens;
 
 void create_instructions();
 void readfile(char* filename);
