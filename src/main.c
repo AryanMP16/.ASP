@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
       create_instructions();
       readfile(argv[1]);
       token* token_array = lexer();
-      parser(token_array);
+      parser(token_array, 0);
     }
   }
   else {
@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
       for (int i = 0; i < num_tokens; i++)
 	printf("Token: '%s', type: %s\n", token_array[i].str, interpret_type(token_array[i].type));
       printf("Lexer ran with no errors\n...Running parser...\n");
-      parser(token_array);
+      parser(token_array, 1);
     }
     else {
       printf("Option not recognized!\n");
