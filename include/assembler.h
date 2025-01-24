@@ -33,7 +33,7 @@ extern int num_tokens;
 void create_instructions();
 void readfile(char* filename);
 token* lexer(); //must be called AFTER readfile
-void parser(token* token_stream);
+void parser(token* token_stream, int debug_mode);
 char* interpret_type(int type);
 
 #endif
