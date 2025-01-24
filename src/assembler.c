@@ -143,24 +143,40 @@ inst token_to_inst(token t) {
   exit(1);
 }
 
-void parser(token* token_stream) {
+void parser(token* token_stream, int debug_mode) {
   int stream_traverser = 0;
+  int num_expressions = 0;
   while (stream_traverser < num_tokens) {
     if (token_stream[stream_traverser].type == INSTRUCTION) {
       inst this_instruction = token_to_inst(token_stream[stream_traverser]);
-      printf("Instruction: %s\tNumber of operands: %d", this_instruction.m_name, this_instruction.m_num_operands);
+      debug_mode ? printf("Instruction: %s\tNumber of operands: %d", this_instruction.m_name, this_instruction.m_num_operands) : (void) 0;
       if (this_instruction.m_num_operands != 0) {
-	printf("\tOperands: ");
-	for (int i = 0; i < this_instruction.m_num_operands; i++)
-	  printf("%s ", interpret_type(this_instruction.operands[i]));
-	printf("\n");
+	debug_mode ? printf("\tOperands: ") : (void) 0;
+	for (int i = 0; i < this_instruction.m_num_operands; i++) {
+	  debug_mode ? printf("%s ", interpret_type(this_instruction.operands[i])) : (void) 0;
+	  if (token_stream[stream_traverser + i + 1].type == this_instruction.operands[i]) {
+	    debug_mode ? printf("Y ") : (void) 0;
+	  }
+	  else {
+	    debug_mode ? printf("X ") : (void) 0;
+	    printf("\n### Error: incorrect operand type or count at line %d ###\n", num_expressions + 2);
+	    exit(1);
+	  }
+	}
+	debug_mode ? printf("\n") : (void) 0;
       }
-      else
-	printf("\n");
+      else {
+	debug_mode ? printf("\n") : (void) 0;
+      }
+      stream_traverser += this_instruction.m_num_operands + 1;
+      num_expressions++;
     }
-
-    stream_traverser++;
+    else { //should only ever read instructions, and handle operands in loop above.
+      printf("### Error: incorrect operand count at line %d ###\n", num_expressions + 1);
+      exit(1);
+    }
   }
+  debug_mode ? printf("Total expressions read: %d\n", num_expressions) : (void) 0;
 }
 
 char* interpret_type(int type) {
