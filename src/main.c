@@ -7,25 +7,6 @@ void help() {
   printf("Command: asp\nOptions:\n    --help\tyou've just used this\t\tno file input required\n    -d\t\trun assembler in debug mode\tneed input file\n");
 }
 
-char* interpret_type(int type) {
-  char* to_return = (char*)malloc(sizeof(char) * 100);
-  switch (type) {
-  case INSTRUCTION:
-    strcpy(to_return, "INSTRUCTION");
-    break;
-  case IMMEDIATE:
-    strcpy(to_return, "IMMEDIATE");
-    break;
-  case REGISTER:
-    strcpy(to_return, "REGISTER");
-    break;
-  case INTEGER_LITERAL:
-    strcpy(to_return, "INTEGER LITERAL");
-    break;
-  }
-  return to_return;
-}
-
 int main(int argc, char* argv[]) {
   int exit_code = 0;
   if (argc < 2) {
@@ -43,7 +24,8 @@ int main(int argc, char* argv[]) {
     else {
       create_instructions();
       readfile(argv[1]);
-      lexer();
+      token* token_array = lexer();
+      parser(token_array);
     }
   }
   else {
@@ -59,7 +41,8 @@ int main(int argc, char* argv[]) {
       printf("Number of tokens read: %d\n", num_tokens);
       for (int i = 0; i < num_tokens; i++)
 	printf("Token: '%s', type: %s\n", token_array[i].str, interpret_type(token_array[i].type));
-      printf("Lexer ran with no errors\n");
+      printf("Lexer ran with no errors\n...Running parser...\n");
+      parser(token_array);
     }
     else {
       printf("Option not recognized!\n");
