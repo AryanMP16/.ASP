@@ -18,16 +18,10 @@ int get_type(char* str);
 void create_instructions() {
   instructions = (inst*)malloc(sizeof(inst) * NUM_INSTRUCTIONS);
 
-  char* LOI_operands[2] = {"imm", "reg"};
-  inst LOI = {0x01, "LOI", 2, LOI_operands};
-  
-  char* ADD_operands[2] = {"reg", "reg"};
-  inst ADD = {0x02, "ADD", 2, ADD_operands};
-
-  char* SUB_operands[2] = {"reg", "reg"};
-  inst SUB = {0x03, "SUB", 2, SUB_operands};
-
-  inst TER = {0xFF, "TER", 0, NULL};
+  inst LOI = {0x01, "LOI", 2, {IMMEDIATE, REGISTER}};
+  inst ADD = {0x02, "ADD", 2, {REGISTER, REGISTER}};
+  inst SUB = {0x03, "SUB", 2, {REGISTER, REGISTER}};
+  inst TER = {0xFF, "TER", 0, {-1, -1}};
 
   instructions[0] = LOI;
   instructions[1] = ADD;
@@ -131,10 +125,59 @@ int get_type(char* str) {
     return REGISTER;
   if (str[0] == '0' && (str[1] == 'x' || str['b']))
     return INTEGER_LITERAL;
-  printf("Illegal token: '%s'\nAllowed tokens are of type:\n\tINSTRUCTION (no prefix)\n\tIMMEDIATE (prefix '$')\n\tREGISTER (prefix '%')\n\tINTEGER_LITERAL (prefix '0x' for hexadecimal or '0b' for binary)\n", str);
+  printf("Illegal token: '%s'\nAllowed tokens are of type:\n\tINSTRUCTION (no prefix)\n\tIMMEDIATE (prefix '$')\n\tREGISTER (prefix '%%')\n\tINTEGER_LITERAL (prefix '0x' for hexadecimal or '0b' for binary)\n", str);
   exit(1);
 }
 
 int is_delimeter(char i){
   return (i == ' ' || i == ',' || i == '\n');
+}
+
+inst token_to_inst(token t) {
+  for (int i = 0; i < NUM_INSTRUCTIONS; i++) {
+    if (!strcmp(t.str, instructions[i].m_name)) {
+      return instructions[i];
+    }
+  }
+  printf("Parsing error\n");
+  exit(1);
+}
+
+void parser(token* token_stream) {
+  int stream_traverser = 0;
+  while (stream_traverser < num_tokens) {
+    if (token_stream[stream_traverser].type == INSTRUCTION) {
+      inst this_instruction = token_to_inst(token_stream[stream_traverser]);
+      printf("Instruction: %s\tNumber of operands: %d", this_instruction.m_name, this_instruction.m_num_operands);
+      if (this_instruction.m_num_operands != 0) {
+	printf("\tOperands: ");
+	for (int i = 0; i < this_instruction.m_num_operands; i++)
+	  printf("%s ", interpret_type(this_instruction.operands[i]));
+	printf("\n");
+      }
+      else
+	printf("\n");
+    }
+
+    stream_traverser++;
+  }
+}
+
+char* interpret_type(int type) {
+  char* to_return = (char*)malloc(sizeof(char) * 100);
+  switch (type) {
+  case INSTRUCTION:
+    strcpy(to_return, "INSTRUCTION");
+    break;
+  case IMMEDIATE:
+    strcpy(to_return, "IMMEDIATE");
+    break;
+  case REGISTER:
+    strcpy(to_return, "REGISTER");
+    break;
+  case INTEGER_LITERAL:
+    strcpy(to_return, "INTEGER LITERAL");
+    break;
+  }
+  return to_return;
 }
