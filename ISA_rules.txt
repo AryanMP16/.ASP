@@ -1,0 +1,14 @@
+This code is set up to support any ISA that meets the following requirements:
+ * There exist 4 types of tokens: instructions, registers, immediates, integer literals
+ * Registers must be:
+   - rax
+   - rsp
+   - rip
+   - r1 -- r12
+ * Immediates must begin with prefix '$'
+ * All immediates and integer literals must be in hex, with prefix '0x'
+ * There must be at most 16 instructions
+
+This means that:
+ * Instructions may have as long a name (string representation) as desired (i.e. it's ok to have "ADD" and "ADDI", despite 1 being 3 characters and the other being 4)
+ * Instructions may have as many operands as desired, as long as they are of the type of tokens allowed
