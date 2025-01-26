@@ -1,6 +1,6 @@
-Instructions that go to the ALU must be 64 bits. These bits are allocated as follows:
-|--opcode--|--oa1 type--|----------oa1----------|--oa2 type--|----------oa2----------|------ blank ------|
-   4 bit       2 bits            16 bits            2 bits            16 bits               20 bits
+Instructions that go to the ALU must be 56 bits. These bits are allocated as follows:
+|--opcode--|--oa1 type--|----------oa1----------|--oa2 type--|----------oa2----------|
+   4 bit       2 bits            24 bits            2 bits            24 bits
 
 opcode:
  * Enumeration of instruction
@@ -10,13 +10,13 @@ opcode:
 oa1/2 type (operand 1/2 type):
  * Control unit will AND this signal with wires to decide whether to load information into the ALU from
    registers or memory or an immediate
+ * 0x1: IMMEDIATE
+ * 0x2: REGISTER
+ * 0x3: INTEGER LITERAL
  * 0x0 -- 0x3
 
 oa1/2 (operand 1/2):
- * Registers are 16 bits. This is a 16-bit computer. Therefore all operands must be at most 16 bits
- * 0x0000 -- 0xFFFF
-
-blank:
- * 20 bits of only 0x0s
+ * registers: 0x000000 to 0x00000F
+ * immediates and literals: 0x000000 to 0xFFFFFF
 
 Note on assembler: must store all fields in LITTLE endian
