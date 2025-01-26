@@ -126,7 +126,7 @@ int get_type(char* str) {
     return REGISTER;
   if (str[0] == '0' && (str[1] == 'x' || str['b']))
     return INTEGER_LITERAL;
-  printf("Illegal token: '%s'\nAllowed tokens are of type:\n\tINSTRUCTION (no prefix)\n\tIMMEDIATE (prefix '$')\n\tREGISTER (prefix '%%')\n\tINTEGER_LITERAL (prefix '0x' for hexadecimal or '0b' for binary)\n", str);
+  printf("Illegal token: '%s'\nAllowed tokens are of type:\n\tINSTRUCTION (no prefix)\n\tIMMEDIATE (prefix '$'. MUST be in hex with prefix '0x')\n\tREGISTER (prefix '%%')\n\tINTEGER_LITERAL. MUST be in hex with prefix '0x'\n", str);
   exit(1);
 }
 
@@ -163,17 +163,21 @@ void parser(token* token_stream, int debug_mode) {
 	debug_mode ? printf("\n\tOperands: ") : (void) 0;
 	for (int i = 0; i < this_instruction.m_num_operands; i++) {
 	  debug_mode ? printf("%s ", interpret_type(this_instruction.operands[i])) : (void) 0;
-	  if (token_stream[stream_traverser + i + 1].type == this_instruction.operands[i]) {
+	  token this_token = token_stream[stream_traverser + i + 1];
+	  
+	  if (this_token.type == this_instruction.operands[i]) {
 	    //this is the branch we always want to be in.
 	    //This is the "things are going right" branch.
 	    //It is entered for every (correct) operand of an instruction.
 	    debug_mode ? printf("Y ") : (void) 0;
-	    debug_mode ? printf("Encoding: %d || ", encode_operand(token_stream[stream_traverser + i + 1])) : (void) 0;
-
-	    //operands will always be 16 bits (2 bytes), and we will store them in LITTLE endian. So for example, $0x4 as an input will be encoded as 0x0104, and will be stored as 0x04 0x01
+	    debug_mode ? printf("Encoding: %d || ", encode_operand(this_token)) : (void) 0;
 	    
-	    fprintf(f, "0x%02x ", encode_operand(token_stream[stream_traverser + i + 1]) & 0xFF); //lower byte of operand
-	    fprintf(f, "0x%02x ", (encode_operand(token_stream[stream_traverser + i + 1]) >> 8) & 0xFF); //upper byte of operand
+	    fprintf(f, "0x%x ", this_token.type);
+	    //little-endianness
+	    for (int i = 0; i < 3; i++) {
+	      fprintf(f, "0x%02x ", ((unsigned int) encode_operand(this_token) >> 8 * i) & 0x00000FF); //unsigned so that shift is always logical
+	    }
+	    
 	  }
 	  else {
 	    debug_mode ? printf("X ") : (void) 0;
@@ -222,13 +226,13 @@ int encode_operand(token operand) {
   int to_return = 0;
   switch (operand.type) {
   case REGISTER:
-    char str[3];
-    strncpy(str, operand.str + 1, 2);
-    if (!strcmp(str, "ra"))
+    char str[4];
+    strncpy(str, operand.str + 1, 3);
+    if (!strcmp(str, "rax"))
       to_return = rax;
-    else if (!strcmp(str, "rs"))
+    else if (!strcmp(str, "rsi"))
       to_return = rsp;
-    else if (!strcmp(str, "ri"))
+    else if (!strcmp(str, "rip"))
       to_return = rip;
     else if (!strcmp(str, "r1"))
       to_return = r1;
@@ -258,15 +262,14 @@ int encode_operand(token operand) {
       printf("\nIncorrect register: %s\n", operand.str);
       exit(1);
     }
-    to_return += 0x0010; //this is where I decided registers are going to start from.
     break;
   case IMMEDIATE:
-    char* imm = operand.str + 3;
-    to_return = atoi(imm) + 0x0100; //start immediates from 0x0100. We will have at most 0x000F instructions, and we have 15 registers which take up to 0x001E, and 0x001F will be left empty.
+    char* imm = operand.str + 1;
+    to_return = strtol(imm, NULL, 16);
     break;
   case INTEGER_LITERAL:
-    //no clue how I'm going to deal with this.
-    //MAKE SURE integer literals are AT MOST 16 bits (4 hex numbers)
+    char* intl = operand.str;
+    to_return = strtol(intl, NULL, 16);
     break;
   }
   return to_return;
