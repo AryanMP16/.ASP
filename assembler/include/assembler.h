@@ -1,6 +1,5 @@
 #ifndef ASSEMBLER_H
 #define ASSEMBLER_H
-
 #include <stdlib.h>
 
 enum type {
@@ -25,6 +24,16 @@ typedef struct token {
   char* str;
   int type;
 } token;
+
+enum reg {
+  rax, //return register
+  rsp, //stack pointer
+  rip, //instruction pointer
+  r1, r2, r3,
+  r4, r5, r6,
+  r7, r8, r9,
+  r10, r11, r12
+};
 
 extern char* asp_file_contents;
 extern inst* instructions;

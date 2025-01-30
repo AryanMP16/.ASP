@@ -1,11 +1,10 @@
 #include "assembler.h"
-#include "emulator.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #define MAX_BUFFER_SIZE 10000
-#define NUM_INSTRUCTIONS 4
+#define NUM_INSTRUCTIONS 15
 
 int asp_file_contents_length = -1;
 int num_tokens = 0;
@@ -19,15 +18,46 @@ int encode_operand(token operand);
 void create_instructions() {
   instructions = (inst*)malloc(sizeof(inst) * NUM_INSTRUCTIONS);
 
-  inst LOI = {0x01, "LOI", 2, {IMMEDIATE, REGISTER}};
-  inst ADD = {0x02, "ADD", 2, {REGISTER, REGISTER}};
-  inst SUB = {0x03, "SUB", 2, {REGISTER, REGISTER}};
-  inst TER = {0x04, "TER", 0, {-1, -1}};
+  //In general, OP Src, Dest
+  //interaction with memory
+  inst LW = {0x01, "LW", 2, {INTEGER_LITERAL, REGISTER}};
+  inst SW = {0x02, "SW", 2, {REGISTER, INTEGER_LITERAL}};
+  inst LOI = {0x03, "LOI", 2, {IMMEDIATE, REGISTER}};
 
-  instructions[0] = LOI;
-  instructions[1] = ADD;
-  instructions[2] = SUB;
-  instructions[3] = TER;
+  //arithmetic
+  inst ADD = {0x04, "ADD", 2, {REGISTER, REGISTER}};
+  inst SUB = {0x05, "SUB", 2, {REGISTER, REGISTER}};
+  inst LSH = {0x06, "LSH", 2, {INTEGER_LITERAL, REGISTER}};
+  inst RSH = {0x07, "RSH", 2, {INTEGER_LITERAL, REGISTER}}; //arithmetic shift
+
+  //control flow
+  inst JMP = {0x08, "JMP", 1, {INTEGER_LITERAL}};
+  inst JNZ = {0x09, "JNZ", 1, {INTEGER_LITERAL}};
+  inst CMP = {0x0A, "CMP", 2, {REGISTER, REGISTER}};
+
+  //logic
+  inst AND = {0x0B, "AND", 2, {REGISTER, REGISTER}};
+  inst OR = {0x0C, "OR", 2, {REGISTER, REGISTER}};
+  inst XOR = {0x0D, "XOR", 2, {REGISTER, REGISTER}};
+  inst NOT = {0x0E, "NOT", 1, {REGISTER}};
+  
+  inst TER = {0x0F, "TER", 0, {-1, -1}};
+
+  instructions[0] = LW;
+  instructions[1] = SW;
+  instructions[2] = LOI;
+  instructions[3] = ADD;
+  instructions[4] = SUB;
+  instructions[5] = LSH;
+  instructions[6] = RSH;
+  instructions[7] = JMP;
+  instructions[8] = JNZ;
+  instructions[9] = CMP;
+  instructions[10] = AND;
+  instructions[11] = OR;
+  instructions[12] = XOR;
+  instructions[13] = NOT;
+  instructions[14] = TER;
 }
 
 void readfile(char* filename) {
@@ -166,13 +196,11 @@ void parser(token* token_stream, int debug_mode) {
 	  token this_token = token_stream[stream_traverser + i + 1];
 	  
 	  if (this_token.type == this_instruction.operands[i]) {
-	    //this is the branch we always want to be in.
-	    //This is the "things are going right" branch.
-	    //It is entered for every (correct) operand of an instruction.
+	    //This is the "things are going right" branch
 	    debug_mode ? printf("Y ") : (void) 0;
 	    debug_mode ? printf("Encoding: %d || ", encode_operand(this_token)) : (void) 0;
 	    
-	    fprintf(f, "0x%x ", this_token.type);
+	    fprintf(f, "0x%02x ", this_token.type);
 	    //little-endianness
 	    for (int i = 0; i < 3; i++) {
 	      fprintf(f, "0x%02x ", ((unsigned int) encode_operand(this_token) >> 8 * i) & 0x00000FF); //unsigned so that shift is always logical
