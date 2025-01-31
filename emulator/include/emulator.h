@@ -8,11 +8,19 @@
 
 //Only allow each entry of the array to be at most 0xFF. C will obviously allow any value, but that's not how we want our memory emulator to work.
 
-extern int memory[0xFFFF];
+extern int memory[0xFFFF]; //emulated memory
+extern int rax, rsp, rip, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12; //emulated regiter file
+
 void write_byte(int address, int to_write);
 int read_byte(int address);
 void initialize_emulator();
 void display_memory(int start_address, int num_bytes);
 void read_asp_file(char* filename);
+void execute_program(); //This is the bulk of the emulator.
+
+typedef struct operand {
+  int type;
+  int value;
+} operand;
 
 #endif
