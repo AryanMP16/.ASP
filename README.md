@@ -1,4 +1,5 @@
->start
+Example:
+```>start
 LOI $0x1, %r1
 LOI $0xA, %r2
 LOI $0x0, %r3
@@ -14,4 +15,4 @@ SW %r1, 0x1F00
 ADDI $0x1, %r3
 JMP 0x102d
 LW 0x1F01, %rax
-TER
+TER```

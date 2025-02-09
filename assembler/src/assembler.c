@@ -23,22 +23,22 @@ void create_instructions() {
   inst LW = {0x01, "LW", 2, {INTEGER_LITERAL, REGISTER}};
   inst SW = {0x02, "SW", 2, {REGISTER, INTEGER_LITERAL}};
   inst LOI = {0x03, "LOI", 2, {IMMEDIATE, REGISTER}};
+  inst MOVR = {0x04, "MOVR", 2, {REGISTER, REGISTER}};
 
   //arithmetic
-  inst ADD = {0x04, "ADD", 2, {REGISTER, REGISTER}};
-  inst SUB = {0x05, "SUB", 2, {REGISTER, REGISTER}};
-  inst LSH = {0x06, "LSH", 2, {INTEGER_LITERAL, REGISTER}};
-  inst RSH = {0x07, "RSH", 2, {INTEGER_LITERAL, REGISTER}}; //arithmetic shift
+  inst ADD = {0x05, "ADD", 2, {REGISTER, REGISTER}};
+  inst ADDI = {0x06, "ADDI", 2, {IMMEDIATE, REGISTER}};
+  inst SUB = {0x07, "SUB", 2, {REGISTER, REGISTER}};
+  inst LSH = {0x08, "LSH", 2, {INTEGER_LITERAL, REGISTER}};
 
   //control flow
-  inst JMP = {0x08, "JMP", 1, {INTEGER_LITERAL}};
-  inst JNZ = {0x09, "JNZ", 1, {INTEGER_LITERAL}};
-  inst CMP = {0x0A, "CMP", 2, {REGISTER, REGISTER}};
+  inst JMP = {0x09, "JMP", 1, {INTEGER_LITERAL}};
+  inst JZ = {0x0A, "JZ", 1, {INTEGER_LITERAL}};
+  inst CMP = {0x0B, "CMP", 2, {REGISTER, REGISTER}};
 
   //logic
-  inst AND = {0x0B, "AND", 2, {REGISTER, REGISTER}};
-  inst OR = {0x0C, "OR", 2, {REGISTER, REGISTER}};
-  inst XOR = {0x0D, "XOR", 2, {REGISTER, REGISTER}};
+  inst AND = {0x0C, "AND", 2, {REGISTER, REGISTER}};
+  inst OR = {0x0D, "OR", 2, {REGISTER, REGISTER}};
   inst NOT = {0x0E, "NOT", 1, {REGISTER}};
   
   inst TER = {0x0F, "TER", 0, {-1, -1}};
@@ -46,16 +46,16 @@ void create_instructions() {
   instructions[0] = LW;
   instructions[1] = SW;
   instructions[2] = LOI;
-  instructions[3] = ADD;
-  instructions[4] = SUB;
-  instructions[5] = LSH;
-  instructions[6] = RSH;
-  instructions[7] = JMP;
-  instructions[8] = JNZ;
-  instructions[9] = CMP;
-  instructions[10] = AND;
-  instructions[11] = OR;
-  instructions[12] = XOR;
+  instructions[3] = MOVR;
+  instructions[4] = ADD;
+  instructions[5] = ADDI;
+  instructions[6] = SUB;
+  instructions[7] = LSH;
+  instructions[8] = JMP;
+  instructions[9] = JZ;
+  instructions[10] = CMP;
+  instructions[11] = AND;
+  instructions[12] = OR;
   instructions[13] = NOT;
   instructions[14] = TER;
 }
@@ -205,7 +205,8 @@ void parser(token* token_stream, int debug_mode) {
 	    for (int i = 0; i < 3; i++) {
 	      fprintf(f, "0x%02x ", ((unsigned int) encode_operand(this_token) >> 8 * i) & 0x00000FF); //unsigned so that shift is always logical
 	    }
-	    
+	    if (this_instruction.m_num_operands == 1)
+	      fprintf(f, "0x00 0x00 0x00 0x00 ");
 	  }
 	  else {
 	    debug_mode ? printf("X ") : (void) 0;
