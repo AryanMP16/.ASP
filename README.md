@@ -16,6 +16,7 @@ This means that:
  * Instructions may have as many operands as desired and it will work with the assembler. The emulator is only made to handle instructions with at most 2 operands, though.
 
 I have included an example ISA that I personally use. The following is an example of its use. The code below computes the 11th Fibonacci number, 89.
+<br>
 Assembly:
 ```>start
 LOI $0x1, %r1
